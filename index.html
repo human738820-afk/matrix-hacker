@@ -1,0 +1,301 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MATRIX CYBER OPS V2.5</title>
+
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;background:#020403;color:#00ff70;
+ font-family:monospace;overflow-x:hidden;
+}
+canvas{
+ position:fixed;inset:0;width:100%;height:100%;
+ z-index:-2;opacity:.35;
+}
+body:after{
+ content:"";position:fixed;inset:0;pointer-events:none;
+ z-index:5;opacity:.12;
+ background:repeating-linear-gradient(
+ transparent 0px,transparent 3px,
+ #00ff70 4px
+ );
+}
+header{
+ text-align:center;padding:16px 8px;
+ border-bottom:1px solid #00ff70;
+ background:#001008;
+}
+h1{
+ font-size:25px;letter-spacing:3px;
+ text-shadow:0 0 15px #00ff70;
+}
+main{max-width:700px;margin:15px auto;padding:10px}
+.panel{
+ background:#001108ed;border:1px solid #00ff70;
+ padding:16px;margin:12px 0;border-radius:5px;
+ box-shadow:0 0 18px #00ff7022;
+}
+input{
+ width:100%;padding:14px;
+ background:#000;color:#00ff70;
+ border:1px solid #00ff70;font:16px monospace;
+}
+button{
+ width:100%;padding:15px;
+ background:#00ff70;color:#001000;
+ border:0;font-weight:bold;font-family:monospace;
+ margin-top:12px;font-size:15px;
+}
+button:disabled{opacity:.5}
+.bar{height:12px;background:#183020;margin:8px 0 16px}
+.fill{
+ height:100%;width:0;background:#00ff70;
+ box-shadow:0 0 12px #00ff70;
+ transition:width .15s;
+}
+#terminal{
+ height:230px;overflow:auto;font-size:12px;
+ line-height:1.7;overflow-wrap:anywhere;
+}
+.muted{color:#75a58a;font-size:11px}
+.red{color:#ff3030}
+.white{color:white}
+.blink{animation:blink .7s infinite}
+@keyframes blink{50%{opacity:.2}}
+#alert{
+ display:none;text-align:center;color:#ff3030;
+ border-color:red;text-shadow:0 0 12px red;
+}
+#final{display:none;text-align:center;padding:30px 12px}
+#final h1{font-size:34px}
+@media(max-width:400px){h1{font-size:20px}}
+</style>
+</head>
+
+<body>
+<canvas id="matrix"></canvas>
+
+<header>
+<h1>☠ MATRIX CYBER OPS ☠</h1>
+<div>ADVANCED CYBER COMMAND CENTER</div>
+<div class="muted">VERSION 2.5 // SIMULATION ENVIRONMENT</div>
+</header>
+
+<main>
+
+<section class="panel" id="setup">
+<h3>OPERATOR CONSOLE</h3>
+<p>ENTER TARGET NICKNAME</p>
+
+<input id="target" maxlength="24" placeholder="Enter nickname">
+
+<button onclick="launch()">INITIALIZE OPERATION</button>
+
+<p class="muted">
+VISUAL CYBER SIMULATION
+</p>
+</section>
+
+<section id="dashboard" style="display:none">
+
+<div class="panel">
+<h3>MISSION CONTROL</h3>
+<p>OPERATION: <span>BLACK MATRIX</span></p>
+<p>TARGET: <span id="name">UNKNOWN</span></p>
+<p>STATUS: <span id="status">INITIALIZING</span></p>
+</div>
+
+<div class="panel">
+<h3>SECURITY ANALYSIS</h3>
+
+<p>NETWORK DISCOVERY</p>
+<div class="bar"><div class="fill" id="b1"></div></div>
+
+<p>FIREWALL ANALYSIS</p>
+<div class="bar"><div class="fill" id="b2"></div></div>
+
+<p>ENCRYPTION ANALYSIS</p>
+<div class="bar"><div class="fill" id="b3"></div></div>
+</div>
+
+<div class="panel">
+<h3>LIVE COMMAND TERMINAL</h3>
+<div id="terminal"></div>
+</div>
+
+<div class="panel blink" id="alert">
+<h2>⚠ SECURITY ALERT ⚠</h2>
+<p>SIMULATED SECURITY EVENT DETECTED</p>
+</div>
+
+</section>
+
+<section id="final" class="panel">
+<h1 class="blink">ACCESS GRANTED</h1>
+
+<h2 class="red">SYSTEM OVERRIDE COMPLETE</h2>
+
+<hr style="border-color:#00ff70">
+
+<p>OPERATION: BLACK MATRIX</p>
+<p>TARGET: <span id="finalTarget">UNKNOWN</span></p>
+<p>NETWORK: SIMULATION COMPLETE</p>
+<p>ENCRYPTION: VERIFIED</p>
+<p>SESSION: TERMINATED</p>
+
+<h2 style="margin-top:35px">OPERATION COMPLETE</h2>
+
+<p class="muted">
+MATRIX CYBER OPS // END OF SESSION
+</p>
+</section>
+
+</main>
+
+<script>
+
+// MATRIX BACKGROUND
+
+const canvas=document.getElementById("matrix");
+const ctx=canvas.getContext("2d");
+let drops=[];
+
+function resize(){
+ canvas.width=innerWidth;
+ canvas.height=innerHeight;
+ drops=Array(Math.ceil(canvas.width/14)).fill(1);
+}
+resize();
+window.addEventListener("resize",resize);
+
+const chars="01ABCDEFGHIJKLMNOPQRSTUVWXYZアイウエオ";
+
+setInterval(()=>{
+ ctx.fillStyle="rgba(0,0,0,.09)";
+ ctx.fillRect(0,0,canvas.width,canvas.height);
+ ctx.fillStyle="#00ff70";
+ ctx.font="14px monospace";
+
+ drops.forEach((y,i)=>{
+  ctx.fillText(
+   chars[Math.floor(Math.random()*chars.length)],
+   i*14,y*14
+  );
+  if(y*14>canvas.height&&Math.random()>.97)drops[i]=0;
+  drops[i]++;
+ });
+},40);
+
+
+// SOUND ENGINE
+
+let audio=null;
+
+function beep(freq=600,duration=.07){
+ try{
+  audio=audio||new(window.AudioContext||window.webkitAudioContext)();
+  if(audio.state==="suspended")audio.resume();
+  const osc=audio.createOscillator();
+  const gain=audio.createGain();
+
+  osc.frequency.value=freq;
+  gain.gain.value=.035;
+
+  osc.connect(gain);
+  gain.connect(audio.destination);
+
+  osc.start();
+  osc.stop(audio.currentTime+duration);
+ }catch(e){}
+}
+
+
+// TERMINAL ENGINE
+
+const terminal=document.getElementById("terminal");
+
+function log(message){
+ const line=document.createElement("div");
+ line.textContent=message;
+ terminal.appendChild(line);
+ terminal.scrollTop=terminal.scrollHeight;
+}
+
+const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+
+async function progress(id){
+ const bar=document.getElementById(id);
+ for(let i=0;i<=100;i+=2){
+  bar.style.width=i+"%";
+  await sleep(45);
+ }
+}
+
+
+// MAIN SIMULATION
+
+async function launch(){
+
+ const nickname=document.getElementById("target").value.trim()||"UNKNOWN";
+
+ document.getElementById("setup").style.display="none";
+ document.getElementById("dashboard").style.display="block";
+
+ document.getElementById("name").textContent=nickname;
+ document.getElementById("finalTarget").textContent=nickname;
+
+ const status=document.getElementById("status");
+
+ const logs=[
+ "[BOOT] Initializing Matrix core...",
+ "[SYSTEM] Loading simulation modules...",
+ "[SCAN] Starting fictional network discovery...",
+ "[SCAN] Test node 192.0.2.14 detected.",
+ "[SCAN] Test node 198.51.100.22 detected.",
+ "[FIREWALL] Running security analysis...",
+ "[CRYPTO] Loading encryption demonstration...",
+ "[PACKET] Generating fictional test packets...",
+ "[ALERT] Simulated security event detected!",
+ "[SYSTEM] No external systems contacted.",
+ "[VERIFY] Demo environment verified.",
+ "[ACCESS] Simulation complete."
+ ];
+
+ for(let i=0;i<logs.length;i++){
+
+  status.textContent="PROCESS "+(i+1)+"/12";
+
+  log(logs[i]);
+  beep(350+i*45);
+
+  if(i===7){
+   document.getElementById("alert").style.display="block";
+  }
+
+  await sleep(750);
+ }
+
+ await Promise.all([
+  progress("b1"),
+  progress("b2"),
+  progress("b3")
+ ]);
+
+ status.textContent="COMPLETE";
+
+ await sleep(1500);
+
+ document.getElementById("dashboard").style.display="none";
+ document.getElementById("final").style.display="block";
+
+ beep(900,.3);
+}
+
+</script>
+</body>
+</html>
+
